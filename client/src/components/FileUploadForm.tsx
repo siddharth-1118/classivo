@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import { Upload, X, File, AlertCircle } from 'lucide-react';
+import { Upload, X, File } from 'lucide-react';
 
 interface FileUploadFormProps {
   onUpload: (formData: FormData) => Promise<void>;

@@ -41,7 +41,7 @@ export default function NotificationDropdown() {
     try {
       await api.put(`/notifications/${id}/read`);
       setNotifications(prev => prev.map(n => n.id === id ? { ...n, isRead: true } : n));
-    } catch (err) {
+    } catch (_err) {
       toast.error('Failed to mark as read');
     }
   };
@@ -51,7 +51,7 @@ export default function NotificationDropdown() {
       await api.put('/notifications/read-all');
       setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
       toast.success('All marked as read');
-    } catch (err) {
+    } catch (_err) {
       toast.error('Failed to mark all as read');
     }
   };
