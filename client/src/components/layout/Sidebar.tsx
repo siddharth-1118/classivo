@@ -17,7 +17,6 @@ const navItemsByRole: Record<string, any[]> = {
   ],
   STUDENT: [
     { name: 'Dashboard', icon: '🏠', href: '/dashboard' },
-    { name: 'AI Assistant', icon: '🤖', href: '/dashboard/ai-assistant' },
     { name: 'Attendance', icon: '📊', href: '/dashboard/attendance' },
     { name: 'Files', icon: '📂', href: '/dashboard/files' },
     { name: 'Messages', icon: '💬', href: '/dashboard/messages' },

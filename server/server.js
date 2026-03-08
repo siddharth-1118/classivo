@@ -64,7 +64,6 @@ app.use("/api/queries", require("./src/routes/queries"));
 app.use("/api/notifications", require("./src/routes/notifications"));
 app.use("/api/admin", require("./src/routes/admin"));
 app.use("/api/announcements", require("./src/routes/announcements"));
-app.use("/api/ai", require("./src/routes/aiRoutes"));
 app.use("/api/resources", require("./src/routes/resourceRoutes"));
 app.use("/api/dashboard", require("./src/routes/dashboardRoutes"));
 
