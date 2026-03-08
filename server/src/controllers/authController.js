@@ -189,10 +189,17 @@ const googleLogin = async (req, res) => {
     });
   } catch (err) {
     console.error('Google login error detail:', err);
-    if (err.name === 'PrismaClientKnownRequestError' || err.message.includes('Can\'t reach database')) {
-      return res.status(503).json({ error: 'Database connection failed. Please try again later.' });
+    const isConnError = err.name === 'PrismaClientKnownRequestError' || 
+                       err.message.includes('Can\'t reach database') ||
+                       err.message.includes('connection');
+    
+    if (isConnError) {
+      return res.status(503).json({ 
+        error: 'Database connection failed.',
+        details: process.env.NODE_ENV === 'development' ? err.message : 'Please check database health on Neon.tech'
+      });
     }
-    res.status(401).json({ error: 'Invalid Google token' });
+    res.status(401).json({ error: 'Invalid Google token or account error' });
   }
 };
 

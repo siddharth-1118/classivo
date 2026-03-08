@@ -11,8 +11,13 @@ const api = axios.create({
   headers: { 'Content-Type': 'application/json' },
 });
 
-// Attach token from localStorage
+// Attach token and fix pathing for baseURL
 api.interceptors.request.use((config) => {
+  // Fix: Strip leading slash if baseURL is present to prevent path reset
+  if (config.baseURL && config.url?.startsWith('/')) {
+    config.url = config.url.substring(1);
+  }
+
   if (typeof window !== 'undefined') {
     const token = localStorage.getItem('classivo_token');
     if (token) config.headers.Authorization = `Bearer ${token}`;
