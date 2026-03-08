@@ -1,0 +1,52 @@
+classivo/
+├── apps/
+│   ├── api/             # Node.js + Express backend
+│   │   ├── src/
+│   │   │   ├── server.ts
+│   │   │   ├── routes/
+│   │   │   │   ├── auth.ts
+│   │   │   │   ├── students.ts
+│   │   │   │   ├── volunteers.ts
+│   │   │   │   ├── files.ts
+│   │   │   │   ├── attendance.ts
+│   │   │   │   ├── messages.ts
+│   │   │   │   ├── notifications.ts
+│   │   │   │   ├── admin.ts
+│   ├── web/             # Next.js Frontend
+│   │   ├── pages/
+│   │   │   ├── index.tsx
+│   │   │   ├── login.tsx
+│   │   │   ├── signup.tsx
+│   │   │   ├── dashboard.tsx
+│   │   │   ├── attendance.tsx
+│   │   │   ├── files.tsx
+│   │   │   ├── messages.tsx
+│   │   │   ├── notifications.tsx
+│   │   │   ├── profile.tsx
+│   │   │   └── admin/
+│   │   │       ├── students.tsx
+│   │   │       ├── volunteers.tsx
+│   │   │       ├── files.tsx
+│   │   │       ├── departments.tsx
+│   │   │       ├── classes.tsx
+│   │   │       ├── subjects.tsx
+│   │   │       ├── analytics.tsx
+│   │   ├── components/
+│   │   │   ├── Sidebar.tsx
+│   │   │   ├── Navbar.tsx
+│   │   │   ├── NotificationDropdown.tsx
+│   │   │   ├── DashboardCards.tsx
+│   │   │   ├── DataTable.tsx
+│   │   │   ├── FileUpload.tsx
+│   │   │   └── Chart.tsx
+│   │   ├── contexts/
+│   │   │   └── AuthContext.tsx
+│   │   └── styles/
+│   │       └── globals.css
+├── packages/
+│   ├── db/
+│   │   └── schema.prisma
+│   └── shared/
+│       └── types.ts
+├── .env
+└── README.md

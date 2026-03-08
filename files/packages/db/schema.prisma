@@ -1,0 +1,172 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  STUDENT
+  VOLUNTEER
+}
+
+enum AttendanceType {
+  SCREENSHOT
+  PDF
+  MANUAL
+}
+
+enum FileCategory {
+  QUESTION_PAPER
+  NOTES
+  ASSIGNMENT
+  STUDY_MATERIAL
+}
+
+enum NotificationType {
+  NEW_FILE
+  ANNOUNCEMENT
+  ATTENDANCE_WARNING
+  ADMIN_REPLY
+  EMERGENCY_ALERT
+}
+
+model User {
+  id           String     @id @default(uuid())
+  name         String
+  email        String     @unique
+  passwordHash String
+  role         Role
+  student      Student?   @relation(fields: [studentId], references: [id])
+  studentId    String?
+  volunteer    Volunteer? @relation(fields: [volunteerId], references: [id])
+  volunteerId  String?
+  createdAt    DateTime   @default(now())
+  messagesSent Message[]  @relation("Sender")
+  messagesRecv Message[]  @relation("Recipient")
+  notifications Notification[]
+  downloads    Download[]
+}
+
+model Student {
+  id         String   @id @default(uuid())
+  user       User?
+  name       String
+  rollNumber String   @unique
+  department Department @relation(fields: [departmentId], references: [id])
+  departmentId String
+  semester   Int
+  class      Class    @relation(fields: [classId], references: [id])
+  classId    String
+  phone      String
+  email      String
+  createdAt  DateTime @default(now())
+  attendance Attendance[]
+}
+
+model Volunteer {
+  id         String   @id @default(uuid())
+  user       User?
+  name       String
+  department Department @relation(fields: [departmentId], references: [id])
+  departmentId String
+  class      Class    @relation(fields: [classId], references: [id])
+  classId    String
+  active     Boolean  @default(false)
+  email      String
+  createdAt  DateTime @default(now())
+  files      File[]
+}
+
+model Department {
+  id   String   @id @default(uuid())
+  name String   @unique
+  classes Class[]
+  subjects Subject[]
+}
+
+model Class {
+  id          String   @id @default(uuid())
+  name        String
+  department  Department @relation(fields: [departmentId], references: [id])
+  departmentId String
+  students    Student[]
+  volunteers  Volunteer[]
+  subjects    Subject[]
+  files       File[]
+}
+
+model Subject {
+  id          String   @id @default(uuid())
+  name        String
+  department  Department @relation(fields: [departmentId], references: [id])
+  departmentId String
+  class       Class      @relation(fields: [classId], references: [id])
+  classId     String
+  files       File[]
+  attendance  Attendance[]
+}
+
+model File {
+  id          String   @id @default(uuid())
+  title       String
+  description String
+  category    FileCategory
+  filename    String
+  url         String
+  department  Department @relation(fields: [departmentId], references: [id])
+  departmentId String
+  class       Class      @relation(fields: [classId], references: [id])
+  classId     String
+  subject     Subject    @relation(fields: [subjectId], references: [id])
+  subjectId   String
+  uploadedBy  Volunteer  @relation(fields: [volunteerId], references: [id])
+  volunteerId String
+  createdAt   DateTime   @default(now())
+  downloads   Download[]
+}
+
+model Attendance {
+  id          String   @id @default(uuid())
+  student     Student  @relation(fields: [studentId], references: [id])
+  studentId   String
+  subject     Subject  @relation(fields: [subjectId], references: [id])
+  subjectId   String
+  type        AttendanceType
+  value       Float
+  fileUrl     String?
+  createdAt   DateTime @default(now())
+}
+
+model Message {
+  id          String   @id @default(uuid())
+  sender      User     @relation("Sender", fields: [senderId], references: [id])
+  senderId    String
+  recipient   User     @relation("Recipient", fields: [recipientId], references: [id])
+  recipientId String
+  text        String
+  replyTo     String?
+  createdAt   DateTime @default(now())
+}
+
+model Notification {
+  id          String   @id @default(uuid())
+  user        User     @relation(fields: [userId], references: [id])
+  userId      String
+  type        NotificationType
+  message     String
+  read        Boolean  @default(false)
+  createdAt   DateTime @default(now())
+}
+
+model Download {
+  id        String   @id @default(uuid())
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
+  file      File     @relation(fields: [fileId], references: [id])
+  fileId    String
+  timestamp DateTime @default(now())
+}

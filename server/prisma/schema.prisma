@@ -1,0 +1,221 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  STUDENT
+  VOLUNTEER
+}
+
+enum FileType {
+  PDF
+  DOC
+  DOCX
+  IMAGE
+  OTHER
+}
+
+enum FileCategory {
+  QUESTION_PAPER
+  NOTES
+  ASSIGNMENT
+  STUDY_MATERIAL
+}
+
+enum AttendanceUploadType {
+  SCREENSHOT
+  PDF
+  MANUAL
+}
+
+enum NotificationType {
+  FILE_UPLOAD
+  ANNOUNCEMENT
+  ATTENDANCE_WARNING
+  MESSAGE_REPLY
+  EMERGENCY_ALERT
+  GENERAL
+}
+
+enum MessageType {
+  MESSAGE
+  EMERGENCY_ALERT
+}
+
+model User {
+  id           String   @id @default(uuid())
+  name         String
+  email        String   @unique
+  passwordHash String
+  role         Role
+  phone        String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  student      Student?
+  volunteer    Volunteer?
+  sentMessages    Message[]      @relation("MessageSender")
+  notifications   Notification[]
+  downloads       Download[]
+}
+
+model Department {
+  id        String    @id @default(uuid())
+  name      String    @unique
+  createdAt DateTime  @default(now())
+
+  classes   Class[]
+  students  Student[]
+  volunteers Volunteer[]
+  subjects  Subject[]
+  files     File[]
+}
+
+model Class {
+  id           String     @id @default(uuid())
+  name         String
+  departmentId String
+  createdAt    DateTime   @default(now())
+
+  department   Department @relation(fields: [departmentId], references: [id], onDelete: Cascade)
+  students     Student[]
+  volunteers   Volunteer[]
+  subjects     Subject[]
+  files        File[]
+
+  @@unique([name, departmentId])
+}
+
+model Subject {
+  id           String     @id @default(uuid())
+  name         String
+  classId      String
+  departmentId String
+  createdAt    DateTime   @default(now())
+
+  class        Class      @relation(fields: [classId], references: [id], onDelete: Cascade)
+  department   Department @relation(fields: [departmentId], references: [id], onDelete: Cascade)
+  attendances  AttendanceRecord[]
+
+  @@unique([name, classId])
+}
+
+model Student {
+  id           String     @id @default(uuid())
+  userId       String     @unique
+  rollNumber   String     @unique
+  departmentId String
+  classId      String
+  semester     String
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  department   Department @relation(fields: [departmentId], references: [id])
+  class        Class      @relation(fields: [classId], references: [id])
+  attendances  AttendanceRecord[]
+}
+
+model Volunteer {
+  id           String     @id @default(uuid())
+  userId       String     @unique
+  departmentId String
+  classId      String
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  department   Department @relation(fields: [departmentId], references: [id])
+  class        Class      @relation(fields: [classId], references: [id])
+  files        File[]
+}
+
+model AttendanceRecord {
+  id           String               @id @default(uuid())
+  studentId    String
+  subjectId    String?
+  subjectName  String?
+  percentage   Float
+  uploadType   AttendanceUploadType
+  fileUrl      String?
+  manualData   Json?
+  semester     String?
+  createdAt    DateTime             @default(now())
+  updatedAt    DateTime             @updatedAt
+
+  student      Student              @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  subject      Subject?             @relation(fields: [subjectId], references: [id], onDelete: SetNull)
+}
+
+model File {
+  id           String       @id @default(uuid())
+  title        String
+  description  String?
+  subjectName  String
+  fileUrl      String
+  fileName     String
+  fileSize     Int?
+  fileType     FileType     @default(OTHER)
+  category     FileCategory @default(STUDY_MATERIAL)
+  departmentId String
+  classId      String
+  uploadedById String
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  department   Department   @relation(fields: [departmentId], references: [id])
+  class        Class        @relation(fields: [classId], references: [id])
+  uploader     Volunteer?   @relation(fields: [uploadedById], references: [id], onDelete: Cascade)
+  downloads    Download[]
+}
+
+model Message {
+  id          String      @id @default(uuid())
+  senderId    String
+  content     String
+  type        MessageType @default(MESSAGE)
+  isRead      Boolean     @default(false)
+  parentId    String?
+  createdAt   DateTime    @default(now())
+
+  sender      User        @relation("MessageSender", fields: [senderId], references: [id], onDelete: Cascade)
+  parent      Message?    @relation("MessageThread", fields: [parentId], references: [id], onDelete: SetNull)
+  replies     Message[]   @relation("MessageThread")
+}
+
+model Notification {
+  id        String           @id @default(uuid())
+  userId    String
+  type      NotificationType @default(GENERAL)
+  title     String
+  message   String
+  isRead    Boolean          @default(false)
+  link      String?
+  createdAt DateTime         @default(now())
+
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Download {
+  id           String   @id @default(uuid())
+  fileId       String
+  userId       String
+  downloadedAt DateTime @default(now())
+
+  file         File     @relation(fields: [fileId], references: [id], onDelete: Cascade)
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Announcement {
+  id        String   @id @default(uuid())
+  title     String
+  content   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
