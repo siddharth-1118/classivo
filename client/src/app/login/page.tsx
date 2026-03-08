@@ -25,7 +25,7 @@ export default function LoginPage() {
     /* global google */
     if (typeof window !== 'undefined' && window.google) {
       window.google.accounts.id.initialize({
-        client_id: "844490845897-7nrlvubs0uv6q9h2f81tat5bs13vs7nf.apps.googleusercontent.com",
+        client_id: "844490845897-gud2oj0849nupbs8hon55j4u0flr02ed.apps.googleusercontent.com",
         callback: handleGoogleResponse
       });
       window.google.accounts.id.renderButton(
