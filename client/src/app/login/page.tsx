@@ -120,9 +120,6 @@ export default function LoginPage() {
           </p>
         </div>
 
-        <p style={{ textAlign: 'center', color: 'var(--text-muted)', fontSize: '12px', marginTop: '24px' }}>
-          Admin access: admin@classivo.com / Admin@123
-        </p>
       </div>
     </div>
   );
