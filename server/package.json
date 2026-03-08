@@ -8,6 +8,7 @@
     "start": "node server.js",
     "migrate": "prisma migrate dev",
     "generate": "prisma generate",
+    "postinstall": "prisma generate",
     "seed": "node src/utils/seed.js"
   },
   "keywords": [],

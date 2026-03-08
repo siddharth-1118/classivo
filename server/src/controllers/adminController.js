@@ -4,12 +4,13 @@ const prisma = new PrismaClient();
 // GET /admin/stats
 const getDashboardStats = async (req, res) => {
   try {
-    const [totalStudents, activeVolunteers, totalFiles, totalMessages, totalAnnouncements] = await Promise.all([
+    const [totalStudents, activeVolunteers, totalFiles, totalMessages, totalAnnouncements, pendingProfilesCount] = await Promise.all([
       prisma.student.count(),
       prisma.volunteer.count(),
       prisma.file.count(),
       prisma.message.count({ where: { parentId: null } }),
       prisma.announcement.count(),
+      prisma.user.count({ where: { role: 'STUDENT', student: null } }),
     ]);
 
     const unreadMessages = await prisma.message.count({ where: { parentId: null, isRead: false } });
@@ -20,7 +21,17 @@ const getDashboardStats = async (req, res) => {
       ? attendanceRecords.reduce((a, r) => a + r.percentage, 0) / attendanceRecords.length
       : null;
 
-    const lowAttendanceCount = attendanceRecords.filter((r) => r.percentage < 75).length;
+    // Better low attendance: count students whose overall average is < 75
+    const studentAverages = {};
+    attendanceRecords.forEach(r => {
+      if (!studentAverages[r.studentId]) studentAverages[r.studentId] = [];
+      studentAverages[r.studentId].push(r.percentage);
+    });
+
+    const lowAttendanceCount = Object.values(studentAverages).filter(records => {
+      const avg = records.reduce((a, b) => a + b, 0) / records.length;
+      return avg < 75;
+    }).length;
 
     res.json({
       totalStudents,
@@ -31,6 +42,7 @@ const getDashboardStats = async (req, res) => {
       totalAnnouncements,
       avgAttendance: avgAttendance ? parseFloat(avgAttendance.toFixed(1)) : null,
       lowAttendanceCount,
+      pendingProfilesCount,
     });
   } catch (err) {
     console.error(err);
